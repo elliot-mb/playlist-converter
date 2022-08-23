@@ -9,11 +9,15 @@ type SpotifyLink = {
     'url': string
 }
 
-export function SpotifyLogin(){
+type LoginProps = {
+    toYouTube: boolean
+};
+
+export function SpotifyLogin(props: LoginProps){
     const [link, setLink] = useState("");
     
     const fetchLink = async () => {
-        const response = await fetch("http://localhost:8000/spotify_redirect");
+        const response = await fetch(`http://localhost:8000/spotify_redirect`);
         //console.log(response);
         const link: SpotifyLink = await response.json();
         setLink(link['url']);
@@ -25,7 +29,7 @@ export function SpotifyLogin(){
 
     return(
         <SpotifyContext.Provider value={{link, fetchLink}}>
-            <a href={link}>Authenticate with Spotify {link}</a>
+            <a href={link}>Authenticate with Spotify</a>
         </SpotifyContext.Provider>
     )
 }
