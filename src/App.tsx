@@ -2,7 +2,7 @@ import React from 'react';
 import './App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   Link
@@ -10,6 +10,7 @@ import {
 
 
 import {Home} from "./pages/Home/Home";
+import {Login} from "./pages/Login/Login"
 
 function App() : React.ReactElement {
   return (
@@ -20,6 +21,7 @@ function App() : React.ReactElement {
         </div>
         <Routes>
           <Route path="/" element={<Home/>}/>
+          <Route path="/login" element={<Login/>}/>
         </Routes>
       </Router>
     </div>
