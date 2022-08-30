@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import "./Home.scss";
 import {Container} from '../../components/Container/Container';
 import {SpotifyLogin} from '../../components/Authenticate/Authenticate';
 import {DestinationDropdown} from '../../components/DestinationDropdown/DestinationDropdown';
+import {spotify} from '../../data/auth_parameters';
 
-export class Home extends React.Component<{}, {toYouTube: boolean}>{
+type State = {
+    toYouTube: boolean,
+    spotifyState: string
+}
+
+export class Home extends React.Component<{}, State>{
     constructor(props: {} | Readonly<{}>){
         super(props);
         this.state = {
-            toYouTube: true
+            toYouTube: true,
+            spotifyState: spotify.state
         }
         this.changeDirection = this.changeDirection.bind(this);
     }
@@ -20,9 +27,11 @@ export class Home extends React.Component<{}, {toYouTube: boolean}>{
     render(){
         return(
             <Container>
-                <p>Writing {`${this.state.toYouTube ? "Spotify" : "YouTube"} -> ${this.state.toYouTube ? "Youtube" : "Spotify"}`}</p>
-                <DestinationDropdown toYouTube={this.state.toYouTube} changeDirection={this.changeDirection}/>
-                <SpotifyLogin toYouTube={this.state.toYouTube}/>
+                <div className="write-select">
+                    <h3>Writing to</h3>
+                    <DestinationDropdown toYouTube={this.state.toYouTube} changeDirection={this.changeDirection}/>
+                </div>
+                <SpotifyLogin toYouTube={this.state.toYouTube} state={this.state.spotifyState}/>
             </Container>
         )
     }
