@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {spotify} from "../../data/auth_parameters";
+import { Access, Error } from "../../data/types";
+import { getSpotifyStorage, setSpotifyStorage } from "../../helpers/token";
 
 type LoginProps = {
     toYouTube: boolean
@@ -19,8 +21,29 @@ export function SpotifyLogin(props: LoginProps){
             .substring(3)
         }`;
 
+    const [loggedIn, setLoggedIn] = useState<boolean>(false);
+    const getLoggedIn = async () => {
+        const access: Access | Error = await getSpotifyStorage();
+        if(access.hasOwnProperty("access_token")){
+            setLoggedIn(true);
+            setSpotifyStorage(access as Access);
+        }else{
+            const accessError: Error = access as Error;
+            console.log(accessError);
+            setLoggedIn(false);
+        }
+    }
+
+    useEffect(() => {
+        getLoggedIn();
+    });
+
     return(
-        <a href={buildLink}>Authenticate with Spotify</a>
+        <>
+            {loggedIn 
+            ? <p>Logged into Spotify!</p>
+            : <a href={buildLink}>Log into Spotify</a>}
+        </>
     )
 }
 

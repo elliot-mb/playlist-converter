@@ -15,7 +15,7 @@ import {Login} from "./pages/Login/Login"
 function App() : React.ReactElement {
   return (
     <div className="App">
-      <Router>
+      <Router basename="/playlist-converter">
         <div className="hero">
           <h1>Playlist Converter</h1>
         </div>
