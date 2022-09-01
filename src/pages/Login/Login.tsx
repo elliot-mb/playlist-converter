@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
-import {spotify} from "../../data/auth_parameters";
-
-type Access = { //forgive the US spelling
-    access_token: string,
-    expires_in: bigint,
-    refresh_token: string
-}
-type Error = { error: string }
+import { spotify } from "../../data/auth_parameters";
+import { getCurrentSecondsFloor, setSpotifyStorage } from "../../helpers/token";
+import { Access, Error } from "../../data/types";
 
 //avoid hook loop by making consistent objects
 const codeError: Error = { error: "Awaiting code retrieval..." }
-const accessError: Error = { error: "Awaiting access code; awaiting code retrieval..." };
+const accessError: Error = { error: "Awaiting access code..." };
 
 export function Login(){
 
@@ -39,7 +34,8 @@ export function Login(){
     }
     
     const buildURL = (): string => {
-        const url: string = `${spotify.access_token_endpoint}`+
+        const url: string = `${spotify.backend_endpoint}` +
+            `${spotify.access_token_endpoint}`+
             `code=${code}&`+
             `redirect_uri=${spotify.redirect_uri}&`+
             `client_id=${spotify.client_id}`;
@@ -49,21 +45,21 @@ export function Login(){
 
     const fetchAccessToken = async () => {
         if(code !== codeError){
-            const response = await fetch(buildURL());
+            const url: string = buildURL();
+            const response = await fetch(url);
             //console.log(response);
             if(!response.ok) { 
-                accessError.error = `Response code ${response.status}`;
+                accessError.error = `Tried to fetch ${url}, got code: ${response.status}; response: ${response.text}`;
                 setAccess(accessError);
             }else{
                 //successfully recieved access and refresh tokens
                 const access: Access = await response.json();
+                access.expires_in += getCurrentSecondsFloor();
                 setAccess(access);
-                localStorage['access'] = access.access_token;
-                localStorage['expires'] = access.expires_in;
-                localStorage['refresh'] = access.refresh_token;
+                setSpotifyStorage(access);
             }
         }else{
-            accessError.error = `Awaiting access code; ${code.error.toLowerCase()}`;
+            accessError.error = `Awaiting access code...`;
             setAccess(accessError);
         }
     }
@@ -79,8 +75,8 @@ export function Login(){
             <h2>Spotify</h2>
             {access === accessError ? 
                 <>
-                    {code === codeError ? <p>{code.error}</p> : <></>}
-                    <p>{access.error}</p>
+                    {code === codeError ? <p>{`Error: ${code.error}`}</p> : <></>}
+                    <p>{`Error: ${access.error}`}</p>
                 </> 
                 : 
                 <p>Logged in</p>}
