@@ -24,13 +24,14 @@ export async function getSpotifyStorage(): Promise<Access | Error>{
             return {error: `Tried to fetch ${url}, got code: ${response.status}; response: ${response.text}`};
         }else{
             const access: Access = await response.json();
+            access.expires_in += getCurrentSecondsFloor();
             return access;
         }
     }else{
         console.log(`Access token valid for ${+expires - getCurrentSecondsFloor()}s`)
         return {
             access_token: access,
-            expires_in: parseInt(expires, 10),
+            expires_in: parseInt(expires),
             refresh_token: refresh
         }
     }
