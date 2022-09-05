@@ -22,6 +22,7 @@ export function SpotifyLogin(props: LoginProps){
         }`;
 
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
+    const [loaded, setLoaded] = useState(false);
     const getLoggedIn = async () => {
         const access: Access | Error = await getSpotifyStorage();
         if(access.hasOwnProperty("access_token")){
@@ -32,7 +33,9 @@ export function SpotifyLogin(props: LoginProps){
             console.log(accessError);
             setLoggedIn(false);
         }
+        setLoaded(true);
     }
+
 
     useEffect(() => {
         getLoggedIn();
@@ -40,9 +43,14 @@ export function SpotifyLogin(props: LoginProps){
 
     return(
         <>
-            {loggedIn 
-            ? <p>Logged into Spotify!</p>
-            : <a href={buildLink}>Log into Spotify</a>}
+            {
+            loaded
+            ?   
+                loggedIn 
+                ? <p>Logged into Spotify!</p>
+                : <a href={buildLink}>Log into Spotify</a>
+            : <p>Trying to log you in...</p>
+            }
         </>
     )
 }

@@ -15,22 +15,24 @@ export function Login(){
     const [access, setAccess] = useState<Access | Error>(accessError);
 
     const getCode = (): void => {
+        console.log("running getCode");
         const params: string = window.location.href;
         const stateRE = new RegExp('state=(.+)')
         const codeRE = new RegExp('code=(.+)&');
         const stateArr: RegExpExecArray | null = stateRE.exec(params);
         const codeArr: RegExpExecArray | null = codeRE.exec(params);
         const state: string | null = stateArr === null ? null : stateArr[1];
-        const code: string | null = codeArr === null ? null : codeArr[1];
-        if(state === null || code === null || state === "" || code === ""){
+        const codeRead: string | null = codeArr === null ? null : codeArr[1];
+        if(state === null || codeRead === null || state === "" || codeRead === ""){
             codeError.error = "Malformed URI";
             setCode(codeError);
         }else if(state !== spotify.state){
             codeError.error = "Inconsistent state";
             setCode(codeError);
         }else{
-            setCode(code);
+            setCode(codeRead);
         }
+        console.log(code);
     }
     
     const buildURL = (): string => {
@@ -44,6 +46,7 @@ export function Login(){
     }
 
     const fetchAccessToken = async () => {
+        console.log("fetching access token...");
         if(code !== codeError){
             const url: string = buildURL();
             const response = await fetch(url);
@@ -68,7 +71,7 @@ export function Login(){
         getCode();
         if(access === accessError) fetchAccessToken();
         console.log(access);
-    });
+    }, [code, codeError, accessError, access]);
 
     return(
         <Container>
