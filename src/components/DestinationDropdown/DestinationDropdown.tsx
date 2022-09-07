@@ -4,7 +4,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 
 type Props = {
     toYouTube: boolean, 
-    changeDirection: (d: boolean) => void
+    setToYouTube: (d: boolean) => void
 };
 
 type State = {
@@ -21,7 +21,7 @@ export class DestinationDropdown extends React.Component<Props, State>{
     }
 
     select(toYouTube: boolean): void{
-        this.props.changeDirection(toYouTube);
+        this.props.setToYouTube(toYouTube);
         this.setState({text: toYouTube ? "YouTube" : "Spotify"});
     }
 
