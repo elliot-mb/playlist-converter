@@ -1,7 +1,7 @@
 import {getState} from '../helpers/state';
 
 export const deployment = {
-    deployed: false,
+    deployed: true,
     backend_endpoint: "https://playlist-converter-be-elliot-mb.vercel.app/",
     redirect: "https://elliotmb.dev/playlist-converter/login"
 }
