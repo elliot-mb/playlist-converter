@@ -1,3 +1,5 @@
+# Foreword
+This project may have a deployment, but it is currently in development. It may have errors/missing functionality for the time being. 
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
