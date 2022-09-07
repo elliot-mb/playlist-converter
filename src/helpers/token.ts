@@ -1,5 +1,5 @@
 import { Access, ErrorBox } from "../data/types";
-import { spotify } from "../data/auth_parameters";
+import { spotify, backend } from "../data/auth_parameters";
 
 export function getCurrentSecondsFloor(): number{
     return Math.floor(new Date().getTime()/1000);
@@ -20,8 +20,8 @@ export async function refreshSpotifyStorage(): Promise<Access | ErrorBox>{
         return {error: `One or more localStorage properties are missing, please log in`};
     }else if(+expires < getCurrentSecondsFloor()){
         console.log("Attempting access token refresh");
-        const url: string = spotify.backend_endpoint + 
-            spotify.refresh_token_endpoint +
+        const url: string = backend.endpoint + 
+            spotify.backend_refresh_token_endpoint +
             `refresh=${refresh}&`+
             `client_id=${spotify.client_id}`;
         const response: Response = await fetch(url);

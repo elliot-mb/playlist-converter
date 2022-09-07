@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -13,6 +13,11 @@ import {Home} from "./pages/Home/Home";
 import {Login} from "./pages/Login/Login"
 
 function App() : React.ReactElement {
+
+  useEffect(() => {
+    document.title = "Playlist Converter"
+  }, []);
+
   return (
     <div className="App">
       <Router basename="/playlist-converter">

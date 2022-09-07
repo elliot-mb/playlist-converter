@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
-import { spotify } from "../../data/auth_parameters";
+import { spotify, backend } from "../../data/auth_parameters";
 import { getCurrentSecondsFloor, setSpotifyStorage, isValidSpotifyStorage } from "../../helpers/token";
 import { Access, ErrorBox } from "../../data/types";
 
@@ -28,8 +28,8 @@ export function Login(){
     }
 
     const buildURL = (code: string): string => {
-        const url: string = `${spotify.backend_endpoint}` +
-            `${spotify.access_token_endpoint}`+
+        const url: string = `${backend.endpoint}` +
+            `${spotify.backend_access_token_endpoint}`+
             `code=${code}&`+
             `redirect_uri=${spotify.redirect_uri}&`+
             `client_id=${spotify.client_id}`;
