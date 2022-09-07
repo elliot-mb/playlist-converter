@@ -1,16 +1,21 @@
-import { Access, Error } from "../data/types";
+import { Access, ErrorBox } from "../data/types";
 import { spotify } from "../data/auth_parameters";
 
 export function getCurrentSecondsFloor(): number{
     return Math.floor(new Date().getTime()/1000);
 }
 
-//does not mutate localStorage, will need to be done by the caller after to update the access token
-//tries to update token based on refresh token
-export async function getSpotifyStorage(): Promise<Access | Error>{
+export function getSpotifyStorage(): (string | null)[]{
     let access: string | null = localStorage.getItem('access');
     let expires: string | null = localStorage.getItem('expires');
     let refresh: string | null = localStorage.getItem('refresh');
+    return [access, expires, refresh];
+}
+
+//does not mutate localStorage, is done by the caller after to update the access token
+//tries to update access token based on refresh token
+export async function refreshSpotifyStorage(): Promise<Access | ErrorBox>{
+    let [access, expires, refresh]:  (string | null)[] = getSpotifyStorage();
     if(access === null || expires === null || refresh === null){
         return {error: `One or more localStorage properties are missing, please log in`};
     }else if(+expires < getCurrentSecondsFloor()){
@@ -35,6 +40,11 @@ export async function getSpotifyStorage(): Promise<Access | Error>{
             refresh_token: refresh
         }
     }
+}
+
+export function isValidSpotifyStorage(): boolean{
+    let store = getSpotifyStorage();
+    return store.reduce((x: boolean, y: string | null) => { return x && (y !== null) }, true);
 }
 
 export function setSpotifyStorage(data: Access): void{
