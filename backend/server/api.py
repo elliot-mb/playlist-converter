@@ -1,5 +1,4 @@
 from typing import List
-import types
 
 from urllib import parse
 from requests import post
@@ -10,18 +9,22 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-class Request:
-    def __init__(self, method, url: str, body: dict | None, headers: dict | None):
-        self.method = method
-        self.url = url
-        self.body = body
-        self.headers = headers
+# class Request:
+#     def __init__(self, method, url: str, body: dict | None, headers: dict | None):
+#         self.method = method
+#         self.url = url
+#         self.body = body
+#         self.headers = headers
 
-    def execute(self) -> dict:
-        return loads(self.method(self.url, data=self.body, headers=self.headers).text)
+#     def execute(self) -> dict:
+#         return loads(self.method(self.url, data=self.body, headers=self.headers).text)
 
 settings: dict = {
-    "deployed": True
+    "deployed": True,
+    "localOrigin": "http://0.0.0.0:8000/",
+    "localRedirect": "http://localhost:3000/",
+    "deployOrigin": "https://playlist-converter-be-elliot-mb.vercel.app/spotify/callback",
+    "deployRedirect": "https://elliotmb.dev/"
 }
 
 #constants
@@ -96,13 +99,18 @@ async def access_token(code: str, redirect_uri: str, client_id: str) -> dict:
 @app.get("/spotify/callback")
 # looks like http://0.0.0.0:8000/access_token/?code=AQAP2l...sdfg&state=2861381566736540
 async def spotify_callback(code: str, state: str) -> RedirectResponse:
-    access: dict = await access_token(code, "http://0.0.0.0:8000/spotify/callback", client_id)
+    redirectBase: str = ""
+    originBase: str = ""
+    if(not settings["deployed"]): 
+        redirectBase = settings["localRedirect"]
+        originBase = settings["localOrigin"]
+    else: 
+        redirectBase = settings["deployRedirect"]
+        originBase = settings["deployOrigin"]
+    access: dict = await access_token(code, f"{originBase}spotify/callback", client_id)
     token: str = access["access_token"]
     expires_in: str = access["expires_in"]
     refresh_token: str = access["refresh_token"]
-    redirectBase: str = ""
-    if(not settings["deployed"]): redirectBase = "http://localhost:3000/"
-    else: redirectBase = "https://elliotmb.dev/"
     return RedirectResponse(f"{redirectBase}playlist-converter/#/login?state={state}&access-token={token}&expires-in={expires_in}&refresh-token={refresh_token}")
 
 @app.get("/spotify/refresh_token")
