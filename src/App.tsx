@@ -20,7 +20,7 @@ function App() : React.ReactElement {
 
   return (
     <div className="App">
-      <Router basename="/playlist-converter">
+      <Router>
         <div className="hero">
           <h1>Playlist Converter</h1>
         </div>
