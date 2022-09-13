@@ -49,6 +49,7 @@ async def secret() -> dict:
 # makes a post request to spotify api to retrieve our token
 @app.get("/access_token/")
 # "code" may either be an auth code OR refresh token
+# http://0.0.0.0:8000/access_token/?code=AQAP2l...sdfg&state=2861381566736540
 async def access_token(code: str, redirect_uri: str, client_id: str) -> dict:
     url: str = auth_base + "api/token"
     body = {
