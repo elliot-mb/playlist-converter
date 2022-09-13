@@ -1,4 +1,5 @@
 from typing import List
+import types
 
 from urllib import parse
 from requests import post
@@ -6,10 +7,25 @@ from base64 import b64encode
 from json import loads
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+class Request:
+    def __init__(self, method, url: str, body: dict | None, headers: dict | None):
+        self.method = method
+        self.url = url
+        self.body = body
+        self.headers = headers
+
+    def execute(self) -> dict:
+        return loads(self.method(self.url, data=self.body, headers=self.headers).text)
+
+settings: dict = {
+    "deployed": True
+}
+
 #constants
-# client_id: str = "6fe01415389c4ad9aa91ba1128aa308b"
+client_id: str = "6fe01415389c4ad9aa91ba1128aa308b"
 client_secret: str = "6f5b1159450c45a5a801d9b37ebc980d"
 grant_type_request: str = "authorization_code"
 grant_type_refresh: str = "refresh_token"
@@ -42,14 +58,17 @@ app.add_middleware(
 async def root() -> dict:
     return { "message": "Thank you for using Playlist Converter!" }
 
-@app.get("/secret")
-async def secret() -> dict:
-    return { "client_secret": client_secret }
+# @app.get("/secret")
+# async def secret() -> dict:
+#     return { "client_secret": client_secret }
+
+@app.get("/redirect-test")
+async def redirect_test() -> RedirectResponse:
+    return RedirectResponse("https://elliotmb.dev/#/projects")
 
 # makes a post request to spotify api to retrieve our token
-@app.get("/access_token/")
+@app.get("/access_token")
 # "code" may either be an auth code OR refresh token
-# http://0.0.0.0:8000/access_token/?code=AQAP2l...sdfg&state=2861381566736540
 async def access_token(code: str, redirect_uri: str, client_id: str) -> dict:
     url: str = auth_base + "api/token"
     body = {
@@ -74,7 +93,19 @@ async def access_token(code: str, redirect_uri: str, client_id: str) -> dict:
         "refresh_token": response["refresh_token"]
     }
 
-@app.get("/refresh_token/")
+@app.get("/spotify/callback")
+# looks like http://0.0.0.0:8000/access_token/?code=AQAP2l...sdfg&state=2861381566736540
+async def spotify_callback(code: str, state: str) -> RedirectResponse:
+    access: dict = await access_token(code, "http://0.0.0.0:8000/spotify/callback", client_id)
+    token: str = access["access_token"]
+    expires_in: str = access["expires_in"]
+    refresh_token: str = access["refresh_token"]
+    redirectBase: str = ""
+    if(not settings["deployed"]): redirectBase = "http://localhost:3000/"
+    else: redirectBase = "https://elliotmb.dev/"
+    return RedirectResponse(f"{redirectBase}playlist-converter/#/login?state={state}&access-token={token}&expires-in={expires_in}&refresh-token={refresh_token}")
+
+@app.get("/spotify/refresh_token")
 async def refresh_token(refresh: str, client_id: str) -> dict:
     url: str = auth_base + "api/token"
     body = {
