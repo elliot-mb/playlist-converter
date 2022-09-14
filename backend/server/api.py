@@ -23,7 +23,7 @@ settings: dict = {
     "deployed": True,
     "localOrigin": "http://0.0.0.0:8000/",
     "localRedirect": "http://localhost:3000/",
-    "deployOrigin": "https://playlist-converter-be-elliot-mb.vercel.app/spotify/callback",
+    "deployOrigin": "https://playlist-converter-be-elliot-mb.vercel.app/",
     "deployRedirect": "https://elliotmb.dev/"
 }
 
