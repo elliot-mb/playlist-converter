@@ -22,35 +22,46 @@ export function SpotifyLogin(props: Props){
             .substring(3)
         }`;
 
-    const [loggedIn, setLoggedIn] = useState<boolean>(false);
-    const [loaded, setLoaded] = useState(false);
+    const [status, setStatus] = useState<string>("loading");
+    const [error, setError] = useState<string | null>(null);
     const getLoggedIn = async () => {
         const access: Access | ErrorBox = await refreshSpotifyStorage();
         if(access.hasOwnProperty("access_token")){
-            setLoggedIn(true);
+            setStatus("logged-in");
             setSpotifyStorage(access as Access);
         }else{
             const accessError: ErrorBox = access as ErrorBox;
             console.log(accessError);
-            setLoggedIn(false);
+            setStatus("error");
+            setError(accessError.error);
         }
-        setLoaded(true);
     }
 
 
     useEffect(() => {
         getLoggedIn();
-    }, [loggedIn, loaded, props]);
+    }, [status, props]);
 
     return(
         <>
             {
-            loaded
-            ?   
-                loggedIn 
-                ? <p>Logged into Spotify!</p>
-                : <p><a href={buildLink}>Log into Spotify</a></p>
-            : <p>Trying to log you in...</p>
+            // loaded
+            // ?   
+            //     loggedIn 
+            //     ? <p>Logged into Spotify!</p>
+            //     : access.hasOwnProperty("error") 
+            //         ? <p></p>
+            //         : <p><a href={buildLink}>Log into Spotify</a></p>
+            // : <p>Trying to log you in...</p>
+            status === "loading" 
+            ? <p>Refreshing your access token...</p>
+            : status === "logged-in"
+                ? <p>Logged in to Spotify</p>
+                : 
+                <>
+                    <p><a href={buildLink}>Log into Spotify</a></p>
+                    <p className="text-muted">Error: {error}</p>
+                </>
             }
         </>
     )
