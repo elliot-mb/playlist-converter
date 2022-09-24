@@ -1,0 +1,20 @@
+.user-card{
+    padding: 1rem;
+    margin: 0.5rem 0rem 1.5rem 0rem;
+    height: 10rem;
+    width: 20rem;
+    background: #2225;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.user-card-grid {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.user-card-img{
+    width: 8rem;
+    height: 8rem;
+}

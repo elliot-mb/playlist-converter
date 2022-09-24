@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {spotify} from "../../data/auth_parameters";
+import {spotify} from "../../data/backend_params";
 import { Access, ErrorBox } from "../../data/types";
 import { refreshSpotifyStorage, setSpotifyStorage } from "../../helpers/token";
 import { getState } from "../../helpers/state";
+import Button from 'react-bootstrap/Button';
 
 type Props = {
-    toYouTube: boolean, 
     enabled: boolean
 };
 
@@ -45,21 +45,13 @@ export function SpotifyLogin(props: Props){
     return(
         <>
             {
-            // loaded
-            // ?   
-            //     loggedIn 
-            //     ? <p>Logged into Spotify!</p>
-            //     : access.hasOwnProperty("error") 
-            //         ? <p></p>
-            //         : <p><a href={buildLink}>Log into Spotify</a></p>
-            // : <p>Trying to log you in...</p>
             status === "loading" 
             ? <p>Refreshing your access token...</p>
             : status === "logged-in"
-                ? <p>Logged in to Spotify</p>
+                ? <p>Healthy localStorage.</p>
                 : 
                 <>
-                    <p><a href={buildLink}>Log into Spotify</a></p>
+                    <Button type="button" className="btn btn-primary" href={buildLink}>Log into Spotify</Button>
                     <p className="text-muted">Error: {error}</p>
                 </>
             }

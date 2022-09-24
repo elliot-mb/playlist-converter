@@ -1,7 +1,7 @@
 from typing import List
 
 from urllib import parse
-from requests import post
+from requests import post, get, Response
 from base64 import b64encode
 from json import loads
 
@@ -20,7 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 #         return loads(self.method(self.url, data=self.body, headers=self.headers).text)
 
 settings: dict = {
-    "deployed": True,
+    "deployed": False,
     "localOrigin": "http://0.0.0.0:8000/",
     "localRedirect": "http://localhost:3000/",
     "deployOrigin": "https://playlist-converter-be-elliot-mb.vercel.app/",
@@ -34,7 +34,7 @@ grant_type_request: str = "authorization_code"
 grant_type_refresh: str = "refresh_token"
 
 # states: List[str] = []
-base: str = "https://api.spotify.com/"
+base: str = "https://api.spotify.com/v1/"
 auth_base: str = "https://accounts.spotify.com/"
 
 app = FastAPI(
@@ -57,6 +57,19 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+## internal functions
+
+def response_to_json(response: Response):
+    return loads(response.text)
+
+def get_authorized_header(access_token: str):
+    return {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+##
+
 @app.get("/")
 async def root() -> dict:
     return { "message": "Thank you for using Playlist Converter!" }
@@ -70,7 +83,7 @@ async def redirect_test() -> RedirectResponse:
     return RedirectResponse("https://elliotmb.dev/#/projects")
 
 # makes a post request to spotify api to retrieve our token
-@app.get("/access_token")
+@app.get("/access-token")
 # "code" may either be an auth code OR refresh token
 async def access_token(code: str, redirect_uri: str, client_id: str) -> dict:
     url: str = auth_base + "api/token"
@@ -81,13 +94,12 @@ async def access_token(code: str, redirect_uri: str, client_id: str) -> dict:
         "client_id": client_id,
         "client_secret": client_secret
     }
-    id_and_secret: str = f"{client_id}:{client_secret}"
     headers = {
         #"Authorization": f"Basic {b64encode(bytes(id_and_secret, 'utf-8'))}",
         "Content-Type": "application/x-www-form-urlencoded",
         "Access-Control-Allow-Origin": "*" 
     }
-    response = loads(post(url, data=body, headers=headers).text)
+    response = response_to_json(post(url, data=body, headers=headers))
     if "access_token" not in response:
         raise HTTPException(status_code=400, detail=response)
     return {
@@ -113,7 +125,7 @@ async def spotify_callback(code: str, state: str) -> RedirectResponse:
     refresh_token: str = access["refresh_token"]
     return RedirectResponse(f"{redirectBase}playlist-converter/#/login?state={state}&access-token={token}&expires-in={expires_in}&refresh-token={refresh_token}")
 
-@app.get("/spotify/refresh_token")
+@app.get("/spotify/refresh-token")
 async def refresh_token(refresh: str, client_id: str) -> dict:
     url: str = auth_base + "api/token"
     body = {
@@ -122,13 +134,12 @@ async def refresh_token(refresh: str, client_id: str) -> dict:
         "client_id": client_id,
         "client_secret": client_secret
     }
-    id_and_secret: str = f"{client_id}:{client_secret}"
     headers = {
         #"Authorization": f"Basic {b64encode(bytes(id_and_secret, 'utf-8'))}",
         "Content-Type": "application/x-www-form-urlencoded",
         "Access-Control-Allow-Origin": "*" 
     }
-    response = loads(post(url, data=body, headers=headers).text)
+    response = response_to_json(post(url, data=body, headers=headers))
     if "access_token" not in response:
         raise HTTPException(status_code=400, detail=response)
     return {
@@ -136,3 +147,19 @@ async def refresh_token(refresh: str, client_id: str) -> dict:
         "expires_in": response["expires_in"],
         "refresh_token": refresh
     }
+
+@app.get("/spotify/user-info")
+# ----------------
+# | name   | pfp||
+# |        |    ||
+# ----------------
+async def profile_card(access_token: str):
+    url: str = f"{base}me"
+    response = response_to_json(get(url, data={}, headers=get_authorized_header(access_token)))
+    if "error" in response:
+        raise HTTPException(status_code=response["error"]["status"], detail=response)
+    else:
+        return {
+            "display_name": response["display_name"],
+            "image_url": response["images"][0]["url"]
+        }

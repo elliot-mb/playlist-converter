@@ -1,5 +1,5 @@
 import { Access, ErrorBox } from "../data/types";
-import { spotify, backend } from "../data/auth_parameters";
+import { spotify, backend } from "../data/backend_params";
 
 export function getCurrentSecondsFloor(): number{
     return Math.floor(new Date().getTime()/1000);
@@ -24,14 +24,13 @@ export async function refreshSpotifyStorage(): Promise<Access | ErrorBox>{
             spotify.backend_refresh_token_endpoint +
             `refresh=${refresh}&`+
             `client_id=${spotify.client_id}`;
-        const response: Response = await fetch(url);
-        if(!response.ok){
-            return {error: `Tried to fetch ${url}, got code: ${response.status}; response: ${response.text}`};
-        }else{
+        return fetch(url).then(async (response) => {
             const access: Access = await response.json();
             access.expires_in += getCurrentSecondsFloor();
             return access;
-        }
+        }, (error) => {
+            return {error: `Tried to fetch ${url}, got code: ${error.status}; response: ${error}`};
+        });
     }else{
         console.log(`Access token valid for ${+expires - getCurrentSecondsFloor()}s`)
         return {

@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { getState } from "../../helpers/state";
 import { getCurrentSecondsFloor, setSpotifyStorage, isValidSpotifyStorage } from "../../helpers/token";
 import { Access, ErrorBox } from "../../data/types";
+import Button from 'react-bootstrap/Button';
 
 export function Login(){
 
@@ -46,7 +47,7 @@ export function Login(){
         <Container>
             <h2>Spotify</h2>
             <p>{status === "ok" ? "Logged in!" : status}</p>
-            <Link to="/">{`< Go back`}</Link>
+            <Link to="/"><Button type="button" className="btn btn-primary">{`< Back`}</Button></Link>
         </Container>
     )
 }
