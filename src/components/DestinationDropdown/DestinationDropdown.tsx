@@ -3,8 +3,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
 type Props = {
-    toYouTube: boolean, 
-    setToYouTube: (d: boolean) => void
+    dest: string, 
+    setDest: (d: string) => void
 };
 
 type State = {
@@ -15,14 +15,14 @@ export class DestinationDropdown extends React.Component<Props, State>{
     constructor(props: Props){
         super(props);
         this.state = {
-            text: this.getText(this.props.toYouTube)
+            text: this.props.dest
         };
         this.select = this.select.bind(this);
     }
 
-    select(toYouTube: boolean): void{
-        this.props.setToYouTube(toYouTube);
-        this.setState({text: toYouTube ? "YouTube" : "Spotify"});
+    select(dest: string): void{
+        this.props.setDest(dest);
+        this.setState({text: dest});
     }
 
     getText(toYouTube: boolean): string{
@@ -32,9 +32,9 @@ export class DestinationDropdown extends React.Component<Props, State>{
     render(){
         return(
             <>
-                <DropdownButton id="destination-dropdown-button" title={this.state.text} >
-                    <Dropdown.Item href="#" onClick={() => {this.select(true)}}>Youtube</Dropdown.Item>
-                    <Dropdown.Item href="#" onClick={() => {this.select(false)}}>Spotify</Dropdown.Item>
+                <DropdownButton id="destination-dropdown-button" title={this.state.text} disabled>
+                    <Dropdown.Item href="#" onClick={() => {this.select("youtube")}}>youtube</Dropdown.Item>
+                    <Dropdown.Item href="#" onClick={() => {this.select("spotify")}}>spotify</Dropdown.Item>
                 </DropdownButton>
             </>
         )

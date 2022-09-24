@@ -2,14 +2,15 @@ import {getState} from '../helpers/state';
 
 export const deployment = {
     deployed: true,
-    backend_endpoint: "https://playlist-converter-be-elliot-mb.vercel.app/",
-}
+    local_endpoint: "http://0.0.0.0:8000/",
+    deployed_endpoint: "https://playlist-converter-be-elliot-mb.vercel.app/"
+};
 
 export const backend = {
     endpoint: deployment.deployed 
-        ? deployment.backend_endpoint 
-        : "http://0.0.0.0:8000/"
-}
+        ? deployment.deployed_endpoint 
+        : deployment.local_endpoint
+};
 
 export const spotify = {
     auth_endpoint: "https://accounts.spotify.com/authorize?",
@@ -21,5 +22,6 @@ export const spotify = {
         "playlist-read-private",
         "playlist-modify-private"
     ],
-    backend_refresh_token_endpoint: "spotify/refresh_token?"
+    backend_refresh_token_endpoint: "spotify/refresh-token?",
+    user_info_endpoint: "spotify/user-info"
 };

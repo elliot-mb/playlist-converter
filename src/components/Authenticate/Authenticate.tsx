@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {spotify} from "../../data/auth_parameters";
+import {spotify} from "../../data/backend_params";
 import { Access, ErrorBox } from "../../data/types";
 import { refreshSpotifyStorage, setSpotifyStorage } from "../../helpers/token";
 import { getState } from "../../helpers/state";
+import Button from 'react-bootstrap/Button';
 
 type Props = {
-    toYouTube: boolean, 
     enabled: boolean
 };
 
@@ -22,35 +22,38 @@ export function SpotifyLogin(props: Props){
             .substring(3)
         }`;
 
-    const [loggedIn, setLoggedIn] = useState<boolean>(false);
-    const [loaded, setLoaded] = useState(false);
+    const [status, setStatus] = useState<string>("loading");
+    const [error, setError] = useState<string | null>(null);
     const getLoggedIn = async () => {
         const access: Access | ErrorBox = await refreshSpotifyStorage();
         if(access.hasOwnProperty("access_token")){
-            setLoggedIn(true);
+            setStatus("logged-in");
             setSpotifyStorage(access as Access);
         }else{
             const accessError: ErrorBox = access as ErrorBox;
             console.log(accessError);
-            setLoggedIn(false);
+            setStatus("error");
+            setError(accessError.error);
         }
-        setLoaded(true);
     }
 
 
     useEffect(() => {
         getLoggedIn();
-    }, [loggedIn, loaded, props]);
+    }, [status, props]);
 
     return(
         <>
             {
-            loaded
-            ?   
-                loggedIn 
-                ? <p>Logged into Spotify!</p>
-                : <p><a href={buildLink}>Log into Spotify</a></p>
-            : <p>Trying to log you in...</p>
+            status === "loading" 
+            ? <p>Refreshing your access token...</p>
+            : status === "logged-in"
+                ? <p>Healthy localStorage.</p>
+                : 
+                <>
+                    <Button type="button" className="btn btn-primary" href={buildLink}>Log into Spotify</Button>
+                    <p className="text-muted">Error: {error}</p>
+                </>
             }
         </>
     )
