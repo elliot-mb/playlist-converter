@@ -20,7 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 #         return loads(self.method(self.url, data=self.body, headers=self.headers).text)
 
 settings: dict = {
-    "deployed": False,
+    "deployed": True,
     "localOrigin": "http://0.0.0.0:8000/",
     "localRedirect": "http://localhost:3000/",
     "deployOrigin": "https://playlist-converter-be-elliot-mb.vercel.app/",
@@ -72,7 +72,7 @@ def get_authorized_header(access_token: str):
 
 @app.get("/")
 async def root() -> dict:
-    return { "message": "Thank you for using Playlist Converter!" }
+    return { "message": "Thank you for using Playlist Converter, visit /docs for info!" }
 
 # @app.get("/secret")
 # async def secret() -> dict:
